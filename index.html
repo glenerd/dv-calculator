@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diminished Value Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Final CSS - v3 */
+        :root {
+            --color-primary-dark: #1C66B7; --color-primary-medium: #2B8AE1; --color-primary-deep: #00469C;
+            --color-accent: #FF7853; --color-accent-dark: #E56A48; --color-white: #FFFFFF;
+            --color-text-light: rgba(255, 255, 255, 0.8); --color-text-lighter: rgba(255, 255, 255, 0.7);
+            --color-text-red: #f87171; --color-text-green: #4ade80;
+            --color-border: rgba(255, 255, 255, 0.2); --color-border-light: rgba(255, 255, 255, 0.1);
+        }
+        body { margin: 0; }
+        #calculator-container {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+            color: var(--color-white) !important; background-color: var(--color-primary-dark) !important;
+            padding-top: 2.25rem; padding-bottom: 2.25rem; box-sizing: border-box; min-height: 100vh;
+        }
+        #calculator-container *, #calculator-container *::before, #calculator-container *::after { box-sizing: border-box; }
+        #calculator-container .hidden { display: none !important; }
+        #calculator-container .container { width: 100%; max-width: 56rem; margin: auto; padding: 0 0.5rem; }
+        @media (min-width: 640px) { #calculator-container .container { padding: 0 1.5rem; } }
+        #calculator-container .card { margin-bottom: 2rem; border: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: 1.5rem; overflow: hidden; }
+        #calculator-container .card-header { padding: 2rem; border-bottom: 1px solid var(--color-border-light); text-align: center; background-color: var(--color-primary-deep); }
+        #calculator-container .card-title { display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.5rem !important; line-height: 2rem !important; font-weight: 700 !important; color: var(--color-white) !important; margin: 0; }
+        @media (min-width: 640px) { #calculator-container .card-title { font-size: 1.875rem !important; } }
+        #calculator-container .card-description { font-size: 1rem !important; color: var(--color-text-light) !important; margin: 0.5rem 0 0 0;}
+        @media (min-width: 640px) { #calculator-container .card-description { font-size: 1.125rem !important; } }
+        #calculator-container .card-content { padding: 2rem; background-color: var(--color-primary-medium); }
+        @media (min-width: 640px) { #calculator-container .card-content { padding: 2.5rem; } }
+        #calculator-container .content-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        @media (min-width: 768px) { #calculator-container .content-grid { grid-template-columns: 1fr 1fr; } }
+        #calculator-container form { margin: 0; padding: 0; }
+        #calculator-container .form-space-y { display: flex; flex-direction: column; gap: 2rem; }
+        #calculator-container .form-item { display: flex; flex-direction: column; gap: 1rem; text-align: left; }
+        #calculator-container .form-label { color: var(--color-white) !important; font-size: 1.25rem !important; line-height: 1.75rem !important; font-weight: 700 !important; }
+        #calculator-container .form-label .font-normal { font-weight: 400 !important; font-size: 1rem !important; }
+        #calculator-container .input-icon-wrapper { position: relative; }
+        #calculator-container .input-main, #calculator-container .input-secondary { width: 100% !important; box-sizing: border-box !important; background-color: var(--color-primary-deep) !important; border: 0 !important; color: var(--color-white) !important; font-family: inherit !important; font-size: 1.25rem !important; height: 3.5rem !important; border-radius: 9999px !important; transition: box-shadow 0.2s !important; padding-left: 2.5rem !important; -webkit-appearance: none; }
+        #calculator-container .input-secondary { background-color: rgba(255,255,255,0.1) !important; border: 2px solid var(--color-white) !important; height: 3rem !important; padding-left: 1rem !important; font-size: 1rem !important; }
+        #calculator-container .input-main:focus, #calculator-container .input-secondary:focus { outline: none !important; box-shadow: 0 0 0 3px var(--color-accent) !important; }
+        #calculator-container .form-message { color: var(--color-text-red) !important; font-size: 0.875rem !important; min-height: 1.25rem; text-align: left; }
+        #calculator-container button { font-family: inherit !important; }
+        #calculator-container .button-main, #calculator-container .button-secondary, #calculator-container .button-submit { -webkit-appearance: none; }
+        #calculator-container .button-main { display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; background-color: transparent !important; border: 1px solid var(--color-white) !important; color: var(--color-white) !important; height: 3.5rem !important; font-size: 1.125rem !important; border-radius: 9999px !important; font-weight: 500 !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06) !important; transition: background-color 0.2s, transform 0.1s !important; cursor: pointer !important; }
+        #calculator-container .button-main:hover { background-color: rgba(255,255,255,0.1) !important; }
+        #calculator-container .button-secondary { display: inline-flex !important; align-items: center !important; justify-content: center !important; background-color: transparent !important; border: 1px solid var(--color-white) !important; color: var(--color-white) !important; height: 3rem !important; padding: 0 1.5rem !important; font-size: 1rem !important; border-radius: 9999px !important; font-weight: 500 !important; cursor: pointer !important; }
+        #calculator-container .button-submit { display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; background-color: var(--color-accent) !important; color: var(--color-white) !important; height: 3.5rem !important; font-size: 1.125rem !important; border-radius: 9999px !important; font-weight: 500 !important; border: none !important; cursor: pointer !important; }
+        #calculator-container .benefits-card { background-color: #1E7AD2; padding: 2rem; border-radius: 1rem; border: 1px solid var(--color-border); text-align: left; }
+        #calculator-container .benefits-card h3 { font-size: 1.5rem; font-weight: 600; margin-top: 0; margin-bottom: 1.5rem; color: var(--color-white); }
+        #calculator-container .benefits-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem; }
+        #calculator-container .benefits-list li { display: flex; align-items: flex-start; text-align: left; }
+        #calculator-container .benefits-list span { font-weight: 500; font-size: 1.125rem; color: var(--color-white); }
+        #calculator-container .icon-input { position: absolute; top: 50%; left: 0.75rem; transform: translateY(-50%); height: 1.25rem; width: 1.25rem; pointer-events: none; }
+        #calculator-container .icon-check { height: 1.5rem; width: 1.5rem; margin-right: 0.75rem; margin-top: 0.125rem; flex-shrink: 0; }
+        #calculator-container hr.separator { margin: 2rem 0; border: 0; height: 1px; background-color: var(--color-border); }
+        #calculator-container .results-display { text-align: center; padding: 1.5rem 0; }
+        #calculator-container .edv-value-text { font-size: 3.75rem; font-weight: 600; color: var(--color-white); margin: 0; }
+        #calculator-container .edv-description { color: var(--color-text-lighter); margin-top: 0.75rem; font-size: 1.125rem; }
+        #calculator-container .results-actions { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+        @media (min-width: 640px) { #calculator-container .results-actions { flex-direction: row; justify-content: space-between; align-items: center; } }
+        #calculator-container .results-note { font-style: italic; font-size: 0.875rem; background-color: rgba(255,255,255,0.1); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--color-border); }
+        #calculator-container .thank-you-message { text-align: center; width: 100%; padding: 1rem 0; color: var(--color-text-green); font-size: 1.2rem; }
+        #calculator-container .contact-form-container h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--color-white); }
+        #calculator-container .form-grid-2-col { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 640px) { #calculator-container .form-grid-2-col { grid-template-columns: 1fr 1fr; } }
+        #calculator-container .form-item-simple { display: flex; flex-direction: column; gap: 0.5rem; }
+        #calculator-container .form-label-simple { color: var(--color-white); font-size: 0.875rem; }
+        #calculator-container .form-description-simple { color: var(--color-text-lighter); font-size: 0.875rem; margin: 0.25rem 0 0 0;}
+        #calculator-container .alert-error { background-color: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.3); color: var(--color-white); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; }
+        #calculator-container .alert-error strong { font-weight: bold; display: block; }
+        #calculator-container .icon-loader { height: 1rem; width: 1rem; margin-right: 0.5rem; animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { rotate: 360deg; } }
+    </style>
+</head>
+<body>
+    <div id="calculator-container">
+        <div class="container">
+            <div id="calculator-view">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="card-title">Calculate Your Vehicle's Diminished Value</h1>
+                        <p class="card-description">Enter your vehicle details to estimate the diminished value</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="content-grid">
+                            <div>
+                                <form id="calculator-form" class="form-space-y">
+                                    <div class="form-item">
+                                        <label for="vehicleYear" class="form-label">Vehicle Year <span class="font-normal">(Model year)</span></label>
+                                        <div class="input-icon-wrapper">
+                                            <svg class="icon-input" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                                            <input type="number" id="vehicleYear" name="vehicleYear" value="2022" class="input-main" required>
+                                        </div>
+                                        <p id="vehicleYear-error" class="form-message"></p>
+                                    </div>
+                                    <div class="form-item">
+                                        <label for="preAccidentValue" class="form-label">Pre-Accident Value <span class="font-normal">(Market value)</span></label>
+                                        <div class="input-icon-wrapper">
+                                             <svg class="icon-input" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                            <input type="text" inputmode="numeric" id="preAccidentValue" name="preAccidentValue" value="40,000" class="input-main" required>
+                                        </div>
+                                        <p id="preAccidentValue-error" class="form-message"></p>
+                                    </div>
+                                    <div class="form-item">
+                                        <label for="repairCosts" class="form-label">Approximate Repair Costs <span class="font-normal">(Total cost)</span></label>
+                                        <div class="input-icon-wrapper">
+                                            <svg class="icon-input" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                                            <input type="text" inputmode="numeric" id="repairCosts" name="repairCosts" value="5,000" class="input-main" required>
+                                        </div>
+                                        <p id="repairCosts-error" class="form-message"></p>
+                                    </div>
+                                    <button type="submit" class="button-main">Calculate Diminished Value</button>
+                                </form>
+                            </div>
+                            <div class="benefits-card">
+                                <h3>Our Benefits</h3>
+                                <ul class="benefits-list">
+                                    <li><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>Free Diminished Value Appraisal</span></li>
+                                    <li><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>Expert Insurance Negotiation</span></li>
+                                    <li><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>Rental Car Assistance</span></li>
+                                    <li><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>No Upfront Fees</span></li>
+                                    <li><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>Get a Certified Appraisal</span></li>
+                                </ul>
+                                <p id="currentDate" class="date-text"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="results-view" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="card-title">Your Estimated Diminished Value</h1>
+                        <p class="card-description">Based on the information you provided</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="results-display">
+                            <p id="edv-value" class="edv-value-text"></p>
+                            <p class="edv-description">This is an estimate of how much value your vehicle has lost due to the accident</p>
+                        </div>
+                        <div class="results-actions">
+                            <button id="back-to-calculator" class="button-secondary">Back to Calculator</button>
+                            <p id="results-note" class="results-note">Please note: This calculation provides an estimate only, as actual diminished value varies per vehicle and situation.</p>
+                        </div>
+                        <div id="contact-form-section">
+                            <hr class="separator">
+                            <div class="contact-form-container">
+                                <h3>Submit for Your Free Appraisal</h3>
+                                <div id="submit-error-alert" class="alert-error hidden">
+                                    <strong>Error</strong>
+                                    <p id="submit-error-message"></p>
+                                </div>
+                                <form id="contact-form" class="form-space-y" style="gap: 1.25rem;">
+                                    <div class="form-grid-2-col">
+                                        <div class="form-item-simple">
+                                            <label for="contact-first-name" class="form-label-simple">First Name</label>
+                                            <input type="text" id="contact-first-name" placeholder="John" required class="input-secondary">
+                                            <p id="firstName-error" class="form-message"></p>
+                                        </div>
+                                        <div class="form-item-simple">
+                                            <label for="contact-last-name" class="form-label-simple">Last Name</label>
+                                            <input type="text" id="contact-last-name" placeholder="Doe" required class="input-secondary">
+                                            <p id="lastName-error" class="form-message"></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-item-simple">
+                                        <label for="contact-phone" class="form-label-simple">Phone Number</label>
+                                        <input type="text" id="contact-phone" placeholder="801-123-4567" required class="input-secondary">
+                                        <p class="form-description-simple">Format: 801-123-4567</p>
+                                        <p id="phone-error" class="form-message"></p>
+                                    </div>
+                                    <button type="submit" id="contact-submit-button" class="button-submit">
+                                        <span class="submit-text">Get your FREE Appraisal</span>
+                                        <span class="submitting-text hidden">
+                                            <svg class="icon-loader" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                                            Submitting...
+                                        </span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="thank-you-footer" class="card-footer hidden">
+                        <div class="thank-you-message">
+                            Thank you! We have your details and one of our team members will be in contact shortly to help with your free appraisal.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('load', function() {
+            const container = document.getElementById('calculator-container');
+            if (!container) { return; }
+
+            const calculatorView = container.querySelector("#calculator-view");
+            const resultsView = container.querySelector("#results-view");
+            const calculatorForm = container.querySelector("#calculator-form");
+            const contactForm = container.querySelector("#contact-form");
+            const contactSubmitButton = container.querySelector("#contact-submit-button");
+            const backButton = container.querySelector("#back-to-calculator");
+            const edvValueElement = container.querySelector("#edv-value");
+            const submitErrorAlert = container.querySelector("#submit-error-alert");
+            const submitErrorMessage = container.querySelector("#submit-error-message");
+            const thankYouFooter = container.querySelector("#thank-you-footer");
+            const contactFormSection = container.querySelector("#contact-form-section");
+            const resultsNote = container.querySelector("#results-note");
+            const currentDateEl = container.querySelector("#currentDate");
+            
+            const preAccidentValueInput = container.querySelector("#preAccidentValue");
+            const repairCostsInput = container.querySelector("#repairCosts");
+            const vehicleYearInput = container.querySelector("#vehicleYear");
+            const contactPhoneInput = container.querySelector("#contact-phone");
+
+            let edv = null;
+            let calculationData = null;
+
+            if (currentDateEl) {
+                const date = new Date();
+                currentDateEl.textContent = `The data is current per ${date.toLocaleDateString("en-US", { month: "long", year: "numeric" })}.`;
+            }
+
+            function formatPhoneNumber(value) {
+                const phoneNumber = value.replace(/\D/g, "");
+                if (phoneNumber.length <= 3) return phoneNumber;
+                if (phoneNumber.length <= 6) return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
+                return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+            }
+
+            function formatCurrency(value) {
+                const numericValue = value.replace(/[^0-9]/g, "");
+                if (numericValue) {
+                    return Number.parseInt(numericValue, 10).toLocaleString("en-US");
+                }
+                return "";
+            }
+
+            function getNumericValue(value) {
+                return Number(value.replace(/[^0-9]/g, "")) || 0;
+            }
+
+            function clearErrorMessages() {
+                container.querySelectorAll('.form-message').forEach(el => el.textContent = '');
+            }
+
+            function calculateDiminishedValue(data) {
+                const { preAccidentValue, vehicleYear, repairCosts } = data;
+                if (preAccidentValue === 0) return 0;
+                const repairPercentage = repairCosts / preAccidentValue;
+                let damageMultiplier = 0.1;
+                if (repairPercentage > 0.05) damageMultiplier = 0.2;
+                if (repairPercentage > 0.1) damageMultiplier = 0.3;
+                if (repairPercentage > 0.2) damageMultiplier = 0.4;
+                if (repairPercentage > 0.3) damageMultiplier = 0.5;
+
+                const currentYear = new Date().getFullYear();
+                const vehicleAge = currentYear - vehicleYear;
+                let ageMultiplier = 1.0;
+                if (vehicleAge > 1) ageMultiplier = 0.9;
+                if (vehicleAge > 3) ageMultiplier = 0.8;
+                if (vehicleAge > 5) ageMultiplier = 0.7;
+                if (vehicleAge > 7) ageMultiplier = 0.6;
+                if (vehicleAge > 10) ageMultiplier = 0.4;
+
+                const baseCalculatedEdv = preAccidentValue * damageMultiplier * ageMultiplier;
+                const calculatedEdv = baseCalculatedEdv * 0.4;
+                return Math.round(calculatedEdv);
+            }
+            
+            function validateCalculatorForm(data) {
+                clearErrorMessages();
+                let isValid = true;
+                const currentYear = new Date().getFullYear();
+
+                if (!data.preAccidentValue || data.preAccidentValue <= 0) {
+                    container.querySelector('#preAccidentValue-error').textContent = 'Value is required and must be positive.';
+                    isValid = false;
+                }
+                if (!data.repairCosts || data.repairCosts <= 0) {
+                    container.querySelector('#repairCosts-error').textContent = 'Value is required and must be positive.';
+                    isValid = false;
+                }
+                if (!data.vehicleYear || data.vehicleYear < 1990 || data.vehicleYear > currentYear) {
+                    container.querySelector('#vehicleYear-error').textContent = `Year must be between 1990 and ${currentYear}.`;
+                    isValid = false;
+                }
+                return isValid;
+            }
+            
+            function validateContactForm(data) {
+                clearErrorMessages();
+                let isValid = true;
+                
+                if (data.firstName.length < 2) {
+                     container.querySelector('#firstName-error').textContent = 'First name must be at least 2 characters.';
+                     isValid = false;
+                }
+                if (data.lastName.length < 2) {
+                     container.querySelector('#lastName-error').textContent = 'Last name must be at least 2 characters.';
+                     isValid = false;
+                }
+                if (data.phone.replace(/\D/g, '').length < 10) {
+                     container.querySelector('#phone-error').textContent = 'Please enter a valid 10-digit phone number.';
+                     isValid = false;
+                }
+                return isValid;
+            }
+
+            if(calculatorForm) {
+                calculatorForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(calculatorForm);
+                    const data = {
+                        preAccidentValue: getNumericValue(formData.get("preAccidentValue")),
+                        vehicleYear: Number(formData.get("vehicleYear")),
+                        repairCosts: getNumericValue(formData.get("repairCosts")),
+                    };
+                    if (!validateCalculatorForm(data)) return;
+                    calculationData = data;
+                    edv = calculateDiminishedValue(data);
+                    edvValueElement.textContent = `$${edv.toLocaleString()}`;
+                    calculatorView.classList.add("hidden");
+                    resultsView.classList.remove("hidden");
+                    window.scrollTo(0, 0);
+                });
+            }
+
+            if (backButton) {
+                backButton.addEventListener("click", () => {
+                    resultsView.classList.add("hidden");
+                    calculatorView.classList.remove("hidden");
+                });
+            }
+            
+            if(contactForm) {
+                contactForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    
+                    contactSubmitButton.disabled = true;
+                    contactSubmitButton.querySelector('.submit-text').classList.add('hidden');
+                    contactSubmitButton.querySelector('.submitting-text').classList.remove('hidden');
+                    submitErrorAlert.classList.add('hidden');
+
+                    const contactData = {
+                        firstName: container.querySelector('#contact-first-name').value,
+                        lastName: container.querySelector('#contact-last-name').value,
+                        phone: container.querySelector('#contact-phone').value,
+                        year: calculationData.vehicleYear
+                    };
+
+                    if (!validateContactForm(contactData)) {
+                        contactSubmitButton.disabled = false;
+                        contactSubmitButton.querySelector('.submit-text').classList.remove('hidden');
+                        contactSubmitButton.querySelector('.submitting-text').classList.add('hidden');
+                        return;
+                    }
+
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = "https://lawyerup.leaddocket.com/opportunities/form/12";
+                    form.target = "_blank";
+
+                    const fields = {
+                        "First": contactData.firstName, "Last": contactData.lastName, "Phone": formatPhoneNumber(contactData.phone),
+                        "Year": contactData.year, "Pre-Accident Value": calculationData.preAccidentValue,
+                        "Approximate Repair Cost": calculationData.repairCosts, "Diminished Value": edv
+                    };
+                    
+                    for (const key in fields) {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = key;
+                        input.value = fields[key];
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    
+                    contactFormSection.classList.add('hidden');
+                    resultsNote.classList.add('hidden');
+                    thankYouFooter.classList.remove('hidden');
+                    
+                    setTimeout(() => document.body.removeChild(form), 100);
+                });
+            }
+
+            [preAccidentValueInput, repairCostsInput].forEach(input => {
+                if(input) {
+                    input.addEventListener('input', (e) => {
+                        e.target.value = formatCurrency(e.target.value);
+                    });
+                }
+            });
+
+            if (contactPhoneInput) {
+                contactPhoneInput.addEventListener('input', (e) => {
+                    e.target.value = formatPhoneNumber(e.target.value);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
